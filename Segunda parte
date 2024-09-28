@@ -1,0 +1,120 @@
+;Fernando Hernández Pérez
+; Dirección base de los dispositivos mapeados en memoria
+TECLADO_ADDR  equ 8000h  ; Dirección de memoria para leer el teclado (puerto A)
+LEDS_ADDR     equ 8002h  ; Dirección de memoria para controlar los LEDs (puerto B)
+DISPLAY_ADDR  equ 8004h  ; Dirección de memoria para el display de 7 segmentos (puerto C)
+
+; Tabla de conversión para el display de 7 segmentos
+TABLA_DISPLAY:
+    db 3Fh  ; 0
+    db 06h  ; 1
+    db 5Bh  ; 2
+    db 4Fh  ; 3
+    db 66h  ; 4
+    db 6Dh  ; 5
+    db 7Dh  ; 6
+    db 07h  ; 7
+    db 7Fh  ; 8
+    db 6Fh  ; 9
+
+start:
+    ; Bucle principal
+main_loop:
+    ; Leer el teclado desde la memoria (direccion 8000h)
+    ld hl, TECLADO_ADDR     ; Cargar la dirección del teclado (mapeado en memoria)
+    ld a, (hl)              ; Leer el valor del teclado desde la memoria
+    ld l, a                 ; Guardar el valor leído en L
+
+    ; Mostrar en los LEDs (dirección 8002h)
+    ld hl, LEDS_ADDR        ; Cargar la dirección de los LEDs
+    ld (hl), a              ; Escribir el valor en la memoria (para los LEDs)
+
+    ; Conversión directa y escritura en el display sin subrutinas:
+    ld b, a                 ; Copiar el valor binario en B
+    cp 0                    ; Comienza la verificación de cada valor
+    jp z, mostrar_0         ; Si es 0
+    cp 1
+    jp z, mostrar_1         ; Si es 1
+    cp 2
+    jp z, mostrar_2         ; Si es 2
+    cp 3
+    jp z, mostrar_3         ; Si es 3
+    cp 4
+    jp z, mostrar_4         ; Si es 4
+    cp 5
+    jp z, mostrar_5         ; Si es 5
+    cp 6
+    jp z, mostrar_6         ; Si es 6
+    cp 7
+    jp z, mostrar_7         ; Si es 7
+    cp 8
+    jp z, mostrar_8         ; Si es 8
+    cp 9
+    jp z, mostrar_9         ; Si es 9
+    jp fuera_de_rango       ; Si es mayor que 9
+
+mostrar_0:
+    ld a, 3Fh               ; Cargar patrón para '0'
+    ld hl, DISPLAY_ADDR
+    ld (hl), a              ; Mostrar en el display
+    jp main_loop
+
+mostrar_1:
+    ld a, 06h               ; Cargar patrón para '1'
+    ld hl, DISPLAY_ADDR
+    ld (hl), a
+    jp main_loop
+
+mostrar_2:
+    ld a, 5Bh               ; Cargar patrón para '2'
+    ld hl, DISPLAY_ADDR
+    ld (hl), a
+    jp main_loop
+
+mostrar_3:
+    ld a, 4Fh               ; Cargar patrón para '3'
+    ld hl, DISPLAY_ADDR
+    ld (hl), a
+    jp main_loop
+
+mostrar_4:
+    ld a, 66h               ; Cargar patrón para '4'
+    ld hl, DISPLAY_ADDR
+    ld (hl), a
+    jp main_loop
+
+mostrar_5:
+    ld a, 6Dh               ; Cargar patrón para '5'
+    ld hl, DISPLAY_ADDR
+    ld (hl), a
+    jp main_loop
+
+mostrar_6:
+    ld a, 7Dh               ; Cargar patrón para '6'
+    ld hl, DISPLAY_ADDR
+    ld (hl), a
+    jp main_loop
+
+mostrar_7:
+    ld a, 07h               ; Cargar patrón para '7'
+    ld hl, DISPLAY_ADDR
+    ld (hl), a
+    jp main_loop
+
+mostrar_8:
+    ld a, 7Fh               ; Cargar patrón para '8'
+    ld hl, DISPLAY_ADDR
+    ld (hl), a
+    jp main_loop
+
+mostrar_9:
+    ld a, 6Fh               ; Cargar patrón para '9'
+    ld hl, DISPLAY_ADDR
+    ld (hl), a
+    jp main_loop
+
+fuera_de_rango:
+    xor a                   ; A = 00h (apagar el display)
+    ld hl, DISPLAY_ADDR      ; Cargar la dirección del display
+    ld (hl), a              ; Apagar el display (escribir 00h)
+    jp main_loop             ; Regresar al bucle principal
